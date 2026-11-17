@@ -2,6 +2,18 @@
 
 All notable changes to the Rack Planner are documented in this file.
 
+## [0.2.3] - 2026-11-17
+
+### Added
+
+- Zoom control in the top bar. The default, Fit window, scales the rack to the available width and window height and keeps rescaling as the window is resized. Fixed levels from 50% to 300% are also available. The choice is saved with the project.
+
+### Changed
+
+- Rack row height, rack width, and the text and buttons on devices now scale together with the zoom level, instead of stopping at a fixed size.
+- The delete button on custom gear in the library is gone, so gear can no longer be deleted by accident. Deleting now lives in the device settings window as "Delete device", which asks "Are you sure?" and needs a second click within four seconds. It works for your own library items and for devices placed in the rack or on a shelf.
+- Double-clicking a library item opens its settings.
+
 ## [0.2.1] - 2026-11-17
 
 ### Added
@@ -37,6 +49,8 @@ All notable changes to the Rack Planner are documented in this file.
 
 ## [0.1.0] - 2026-11-12
 
+Reconstructed from the notes of the original build conversation. Individual changes were not versioned at the time, so this entry covers everything up to the last session before 0.2.1, grouped by feature, and the date is the last day that work was done.
+
 ### Added
 
 - Drag-and-drop rack elevation with a searchable, collapsible gear library, U-height tracking, and custom gear entry.
@@ -64,7 +78,6 @@ All notable changes to the Rack Planner are documented in this file.
 
 - Wiring cards that had become impossible to drag.
 
-
+---
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
-

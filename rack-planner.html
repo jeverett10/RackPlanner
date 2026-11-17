@@ -11,7 +11,7 @@
   --font:"Barlow Semi Condensed","Arial Narrow",system-ui,sans-serif;
   --bg:#e6e8ea; --panel:#f6f7f8; --ink:#15181b; --muted:#566069; --line:#c3c9ce;
   --accent:#1f5ed6; --bad:#b7301f; --field:#fff;
-  --u:40px;
+  --ubase:40px;
   color-scheme:light;
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px);
@@ -28,7 +28,7 @@
   --accent:#7fb0ff; --bad:#ff7b6b; --field:#14171a; color-scheme:dark;
 }
 *,*::before,*::after{box-sizing:border-box}
-html{background:var(--bg);scroll-padding-top:env(safe-area-inset-top,0px)}
+html{scrollbar-gutter:stable;background:var(--bg);scroll-padding-top:env(safe-area-inset-top,0px)}
 body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.35 var(--font);min-height:100vh}
 button,input,select{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
@@ -82,10 +82,10 @@ html.dragging-placed .removehint{display:block}
 .cf input[type=number]{width:96px}
 
 /* rack */
-.rack{--cap:14px;width:100%;max-width:calc(60px + 480px * var(--bays,1));display:grid;grid-template-columns:30px minmax(0,1fr);gap:8px;align-items:start}
+.rack{--cap:14px;--z:1;--fz:min(max(var(--z),.8),1.8);--u:calc(var(--ubase) * var(--z));width:100%;max-width:calc((60px + 480px * var(--bays,1)) * var(--z));display:grid;grid-template-columns:30px minmax(0,1fr);gap:8px;align-items:start}
 .rack[hidden]{display:none}
 .unums{list-style:none;margin:calc(var(--cap) + var(--shelfH,0px)) 0 0;padding:0}
-.unums li{height:var(--u);display:flex;align-items:center;justify-content:flex-end;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.unums li{height:var(--u);display:flex;align-items:center;justify-content:flex-end;font-size:calc(13px * var(--fz));color:var(--muted);font-variant-numeric:tabular-nums}
 .frame{background:#2b2f33;border-radius:5px;padding:var(--cap) 0;box-shadow:0 0 0 1px #000,0 12px 28px rgba(0,0,0,.28)}
 .field{--gap:14px;--bw:calc((100% - (var(--bays,1) - 1) * var(--gap)) / var(--bays,1));position:relative;height:calc(var(--rows) * var(--u));background:
   repeating-linear-gradient(to bottom,transparent 0,transparent calc(var(--u) - 1px),rgba(255,255,255,.07) calc(var(--u) - 1px),rgba(255,255,255,.07) var(--u)),#0c0e10}
@@ -349,6 +349,13 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
 .btn:disabled{opacity:.55;cursor:default}
 
+/* zoom */
+.rack .dev>.tape{font-size:calc(15px * var(--fz))}
+.rack .dev>.maker,.rack .dev>.udisp{font-size:calc(13px * var(--fz))}
+.rack .sitem .tape{font-size:calc(12px * var(--fz))}
+.rack .dev:not([data-shelf]) .ctl button{width:calc(28px * var(--fz));height:calc(28px * var(--fz))}
+.tools .zoomsel{min-width:0}
+
 /* device settings dialog */
 #devDlg{max-width:min(760px,calc(100vw - 24px));max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px);overflow:auto}
 .dvgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px 12px}
@@ -377,7 +384,7 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 @media (prefers-reduced-motion:no-preference){.toast{transition:opacity .15s}}
 
 @media (max-width:860px){
-  :root{--u:36px}
+  :root{--ubase:36px}
   .layout{grid-template-columns:minmax(0,1fr);padding:0 14px 28px}
   .top{padding:14px 14px 12px}
   .rackcol{order:-1}
@@ -397,6 +404,7 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
   <input class="name" id="rackName" type="text" value="FOH rack" maxlength="60" aria-label="Rack name" autocomplete="off">
   <div class="tools">
     <label for="rackSize">Rack height <select id="rackSize"></select></label>
+    <label for="zoomSel">Zoom <select id="zoomSel" class="zoomsel"></select></label>
     <span class="stat" id="stat"></span>
     <button type="button" class="btn" id="setupBtn">Rack setup</button>
     <button type="button" class="btn" id="projBtn">Save / open</button>
@@ -538,7 +546,7 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
       <p class="exmsg" id="dvPortNote"></p>
     </fieldset>
     <p class="exmsg dverr" id="dvMsg" role="alert"></p>
-    <div class="exbtns"><button type="button" class="btn" id="dvCancel">Cancel</button><button type="button" class="btn" id="dvCopy">Save and add to library</button><button type="submit" class="btn primary" id="dvSave">Save</button></div>
+    <div class="exbtns"><button type="button" class="btn" id="dvDel" style="margin-right:auto">Delete device</button><button type="button" class="btn" id="dvCancel">Cancel</button><button type="button" class="btn" id="dvCopy">Save and add to library</button><button type="submit" class="btn primary" id="dvSave">Save</button></div>
   </form>
 </dialog>
 <dialog id="projDlg" aria-labelledby="pjTitle">
@@ -779,7 +787,7 @@ const GEAR = [
 
 const SIZES = [4,6,8,10,12,14,16,18,20,24,32,42];
 const KEY = 'rackplanner:v1';
-let state = {name:'FOH rack', rackU:16, items:[], custom:[], wires:[], wpos:{}, wflip:{}, wset:{loop:6, round:true}, bays:1, rack:{kind:'standard', wheels:false, slant:0, angle:20, base:0, shelf:false}, collapsed:{}, units:'in'};
+let state = {name:'FOH rack', rackU:16, items:[], custom:[], wires:[], wpos:{}, wflip:{}, wset:{loop:6, round:true}, bays:1, rack:{kind:'standard', wheels:false, slant:0, angle:20, base:0, shelf:false}, collapsed:{}, units:'in', zoom:'fit'};
 let planId = null;   // id of the shelf open in top-down view
 let selId = null;    // main selected item in top-down view
 let selIds = new Set();   // every selected item in top-down view
@@ -864,6 +872,7 @@ function load(){
     if(SIZES.includes(d.rackU)) state.rackU = d.rackU;
     if([1, 2, 3].includes(d.bays)) state.bays = d.bays;
     if(d.units === 'mm') state.units = 'mm';
+    if(d.zoom === 'fit' || (isFinite(d.zoom) && +d.zoom >= 0.5 && +d.zoom <= 3)) state.zoom = d.zoom === 'fit' ? 'fit' : +d.zoom;
     if(d.rack && typeof d.rack === 'object'){
       if(['standard', 'slant', 'shock'].includes(d.rack.kind)) state.rack.kind = d.rack.kind;
       state.rack.wheels = !!d.rack.wheels;
@@ -1147,6 +1156,7 @@ function renderRack(){
   const used = state.items.reduce((a, i) => a + i.u, 0);
   $('#stat').textContent = used + 'U used · ' + (n * nb - used) + 'U free' + (nb > 1 ? ' · ' + nb + ' bays of ' + n + 'U' : '');
   $('#rackSize').value = String(n);
+  applyZoom();
   applyPick();
 }
 
@@ -1267,7 +1277,6 @@ function renderLib(){
         '<span class="uu">' + badge + '</span>' +
         '<button type="button" class="ib" data-act="cfg" aria-label="Settings for ' + esc(g.name) + '" title="Settings">' + ICON.gear + '</button>' +
         '<button type="button" class="ib" data-act="add" aria-label="Add ' + esc(g.name) + ', ' + g.u + 'U, to rack">' + ICON.plus + '</button>' +
-        (state.custom.includes(g) ? '<button type="button" class="ib" data-act="del" aria-label="Delete ' + esc(g.name) + ' from library">' + ICON.x + '</button>' : '') +
         '</li>';
     }).join('') + '</ul></details>';
   }
@@ -1611,14 +1620,16 @@ $('#libList').addEventListener('pointerdown', e => {
   const li = e.target.closest('.item'); if(!li) return;
   const g = findGear(li.dataset.id); if(g) beginDrag(e, 'lib', li, g);
 });
+$('#libList').addEventListener('dblclick', e => {
+  if(e.target.closest('button')) return;
+  const li = e.target.closest('.item'); if(!li) return;
+  const g = findGear(li.dataset.id); if(g) openDevice(null, li, g);
+});
 $('#libList').addEventListener('click', e => {
   const b = e.target.closest('button[data-act]'); if(!b) return;
   const li = b.closest('.item'); const g = findGear(li.dataset.id); if(!g) return;
   if(b.dataset.act === 'add') addFromLib(g);
   if(b.dataset.act === 'cfg') openDevice(null, b, g);
-  if(b.dataset.act === 'del'){
-    state.custom = state.custom.filter(c => c.id !== g.id); save(); renderLib(); say(g.name + ' deleted from your library.');
-  }
 });
 const shelfOfContent = id => state.items.find(s => s.shelf && s.items.some(c => c.id === id));
 
@@ -3242,6 +3253,7 @@ function dvFill(){
   const step = state.units === 'mm' ? '0.1' : '0.01'; w.step = step; $('#dvD').step = step;
   $('#dvPorts').hidden = shelf;
   $('#dvCopy').hidden = t.isNew || t.builtin;
+  dvDisarm(); $('#dvDel').hidden = t.isNew || t.builtin;
   $('#dvCopy').textContent = lib ? 'Save as new item' : 'Save and add to library';
   $('#dvSave').textContent = t.isNew ? 'Add to library' : t.builtin ? 'Save as my copy' : 'Save';
   dvNote(); dvRenderPorts();
@@ -3336,7 +3348,22 @@ $('#dvAdd').addEventListener('click', () => {
 });
 $('#newDev').addEventListener('click', e => openNew(e.currentTarget));
 $('#dvCancel').addEventListener('click', () => dvDlg.close());
+const dvDelBtn = $('#dvDel'); let dvDelT = 0;
+function dvDisarm(){ clearTimeout(dvDelT); dvDelBtn.removeAttribute('data-armed'); dvDelBtn.textContent = 'Delete device'; }
+dvDelBtn.addEventListener('click', () => {
+  if(!dv) return;
+  if(!dvDelBtn.hasAttribute('data-armed')){
+    const extra = dv.kind === 'shelf' && dv.src.items && dv.src.items.length ? ' (and the ' + dv.src.items.length + ' on it)' : '';
+    dvDelBtn.setAttribute('data-armed', ''); dvDelBtn.textContent = 'Are you sure? Click again to delete' + extra;
+    dvDelT = setTimeout(dvDisarm, 4000); return;
+  }
+  const t = dv; dvDisarm(); dvDlg.close();
+  if(t.mode === 'lib'){ state.custom = state.custom.filter(c => c.id !== t.src.id); save(); renderLib(); say(t.src.name + ' deleted from your library.'); }
+  else if(t.mode === 'rack') removeItem(t.src);
+  else removeContent(t.shelf, t.src);
+});
 dvDlg.addEventListener('close', () => {
+  dvDisarm();
   const op = dv && dv.opener; dv = null;
   if(op && op.isConnected) op.focus({preventScroll:true});
 });
@@ -3412,6 +3439,31 @@ function dvApply(copy){
   say(done);
   return true;
 }
+
+/* ---------- zoom ---------- */
+const ZOOMS = [0.5, 0.75, 1, 1.25, 1.5, 2, 2.5, 3];
+const zoomSel = $('#zoomSel');
+zoomSel.innerHTML = '<option value="fit">Fit window</option>' + ZOOMS.map(z => '<option value="' + z + '">' + Math.round(z * 100) + '%</option>').join('');
+function fitZoom(){
+  const col = $('.rackcol'), cs = getComputedStyle(col);
+  const avail = col.clientWidth - (parseFloat(cs.paddingLeft) || 0) - (parseFloat(cs.paddingRight) || 0);
+  if(!(avail > 0)) return 1;
+  const ub = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--ubase')) || 40;
+  const zw = avail / (60 + 480 * state.bays);
+  const rows = (state.rackU + (state.rack.base || 0)) * ub + 28 + (state.rack.shelf ? 18 : 0) + (state.rack.wheels ? 30 : 0) + 30;
+  const zh = (innerHeight - $('.top').offsetHeight - 56) / rows;
+  return clamp(Math.min(zw, zh), 0.6, 2.5);
+}
+function applyZoom(){
+  const z = state.zoom === 'fit' ? Math.round(fitZoom() * 100) / 100 : +state.zoom;
+  if(rackEl.style.getPropertyValue('--z') !== String(z)) rackEl.style.setProperty('--z', z);
+  if(zoomSel.value !== String(state.zoom)) zoomSel.value = String(state.zoom);
+}
+zoomSel.addEventListener('change', () => { state.zoom = zoomSel.value === 'fit' ? 'fit' : +zoomSel.value; save(); applyZoom(); });
+let zoomRaf = 0;
+const zoomSoon = () => { cancelAnimationFrame(zoomRaf); zoomRaf = requestAnimationFrame(applyZoom); };
+addEventListener('resize', zoomSoon);
+if(window.ResizeObserver) new ResizeObserver(zoomSoon).observe($('.rackcol'));
 
 /* ---------- rack setup and library groups ---------- */
 const suDlg = $('#setupDlg'), suMsg = $('#suMsg');
