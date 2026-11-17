@@ -1,2 +1,1 @@
-# RackPlanner
-Browser-based planner for FOH equipment racks: drag gear into racks, lay out shelves top-down, wire connectors, estimate cable lengths, and export a PDF.
+Rack Planner is a single-file web app for planning live sound and studio equipment racks. Drag gear from a searchable library into a rack of any height (single, double, or triple wide, including angled and shock-mount styles). Lay out loose and half-rack gear on shelves in a top-down view, edit any device’s size and connectors, then wire it up and get cable length estimates and an order summary. Projects save as JSON, and the rack, shelf plans, wiring, and cable schedule export to PDF. Open rack-planner.html in a browser. No build step.
