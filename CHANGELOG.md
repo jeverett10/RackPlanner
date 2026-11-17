@@ -2,17 +2,29 @@
 
 All notable changes to the Rack Planner are documented in this file.
 
-## [0.2.3] - 2026-11-17
+## [0.2.7] - 2026-11-17
 
 ### Added
 
-- Zoom control in the top bar. The default, Fit window, scales the rack to the available width and window height and keeps rescaling as the window is resized. Fixed levels from 50% to 300% are also available. The choice is saved with the project.
+- Zoom control in the top bar, with zoom out, zoom in, and Fit to page buttons plus a dropdown from 25% to 300%. Ctrl/Cmd and the mouse wheel over the rack also zooms. The choice is saved with the project.
+- Fit to page (the default) measures everything on the page that does not scale and sizes the rack to fill what is left, so the rack fits the window without scrolling where it reasonably can. It keeps adjusting as the window is resized or the rack changes. Very tall racks stop at 25% and scroll.
+- Escape clears the current selection in the rack. In the shelf view, the first Escape clears the selection and the next one returns to the rack.
+
+- Editing a device can now update its library item instead of creating a duplicate. For a placed device, the settings window offers "Save this device" (this device only), "Save and update the library item", and "Save and add as new library item". Devices remember which library item they came from, and older ones are matched by name, maker, and height.
+- Built-in library items can be edited in place. Saving from a built-in's settings changes it in the library, marks it "edited", and shows a "Reset to default" button to put it back. Edits are filed under a stable key, so they keep working when new gear is added to the built-in list. Edits are included in saved project files.
 
 ### Changed
 
 - Rack row height, rack width, and the text and buttons on devices now scale together with the zoom level, instead of stopping at a fixed size.
 - The delete button on custom gear in the library is gone, so gear can no longer be deleted by accident. Deleting now lives in the device settings window as "Delete device", which asks "Are you sure?" and needs a second click within four seconds. It works for your own library items and for devices placed in the rack or on a shelf.
 - Double-clicking a library item opens its settings.
+- Saving a built-in item from its settings now changes that item. It used to create a separate copy under your gear. Use "Save as new item" for a copy.
+- Text sizes, control heights, corner radii, and spacing now come from one shared set of values instead of about fifteen separate font sizes. Page text uses 12, 14, 16, 18, 20, and 28 px, and text drawn on gear and wiring diagrams uses its own 12, 13, and 15 px set, which scales with the zoom. Buttons are 36 px tall, or 32 px for the compact ones in the selection bar, shelf tools, library, and Front/Rear toggle. Corner radii are 4, 6, and 10 px, and gaps use a 4, 8, 12, 16, 20, 24 px scale. A few sizes moved by a pixel or two, such as 13 px notes becoming 14 px and 15 px labels becoming 16 px.
+- The selection bar (Move up, Move down, Taller, Shorter, Device settings, and so on) now sits in a fixed spot above the rack, beside the gear library instead of across the whole page, and is always visible, showing "Nothing selected" when empty, so the rack no longer jumps when you select or deselect something. It hides while the shelf or wiring view is open.
+
+### Fixed
+
+- The U numbers beside the rack now stay lined up with the rack rows wherever the content above it ends up, instead of drifting when the area above the rack changed height.
 
 ## [0.2.1] - 2026-11-17
 
