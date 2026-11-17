@@ -1,0 +1,28 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# Node, in case you add a build or Electron wrapper later
+node_modules/
+dist/
+npm-debug.log*
+
+# Xcode, in case you wrap it in a native app
+xcuserdata/
+DerivedData/
+build/
+
+# Your own saved racks
+*.rackplanner.json
